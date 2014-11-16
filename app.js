@@ -1,6 +1,14 @@
 var gpio = require("pi-gpio");
 var fs = require('fs');
+var mysql = require('mysql');
+
 global.pin = -1;
+var connection = mysql.createConnection({
+  host     : '127.0.0.1',
+  user     : 'root',
+  password : '',
+  database : 'piheating'
+});
 
 function getTemp() {
   fs.readFile('/sys/bus/w1/devices/w1_bus_master1/28-000004f90d18/w1_slave', 'utf8', function (err, data) {
@@ -12,6 +20,14 @@ function getTemp() {
     } else { 
       relay(11,0);
     }
+    connection.query('insert into log values ("0",now(),"T","'+temp+'")', function(err, rows) {
+if (err) {
+    console.error('error connecting: ' + err.stack);
+    return;
+  }
+      // connected! (unless `err` is set)
+     console.log('written');
+    });
   });
 }
 
@@ -31,4 +47,9 @@ function relay(pin,position) {
 
 setInterval(function(){
   getTemp();
-}, 1000);
+}, 60000);
+
+console.log('Running');
+
+
+
