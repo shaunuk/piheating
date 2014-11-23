@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>pi-heating</title>
+
+    <!-- Bootstrap -->
+    <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+
+body {background-color: #5a5a5a;}
+</style>
+  </head>
+  <body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8">
+        <div class="jumbotron text-center">
+          <h1 id="nowtemp"> - - </h1>
+          <h6 id="nowdate"> - - </h6>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="jumbotron text-center">
+          <button type="button" class="btn btn-danger btn-lg btn-block"><span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span> Warmer</button>
+          <button type="button" class="btn btn-info btn-lg btn-block"><span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span> Cooler</button>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+  <script src="jquery.min.js"></script>
+  <script src="bootstrap/js/bootstrap.min.js"></script>
+<!--  <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>-->
+<script src="/socket.io/socket.io.js"></script>
+  <script>
+    var socket = io();
+    socket.on('temp', function (data) {
+      $('#nowtemp').html(data.temp+'&deg;C');
+      $('#nowdate').html(data.date);
+      console.log(data);
+      socket.emit('my other event', { my: 'data' });
+    });
+  </script>
+  </body>
+</html>

@@ -1,0 +1,34 @@
+{
+  "name": "piheating",
+  "version": "0.0.2",
+  "description": "node.js and raspberry pi powered home heating controller",
+  "dependencies": {
+    "express": "^4.10.2",
+    "fs": "0.0.2",
+    "gpio": "^0.2.5",
+    "mysql": "^2.5.3",
+    "socket.io": "^1.2.1",
+    "static": "^2.0.0"
+  },
+  "main": "app.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shaunuk/piheating.git"
+  },
+  "keywords": [
+    "raspberry",
+    "pi",
+    "heating",
+    "node.js"
+  ],
+  "author": "Shaun Butler",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shaunuk/piheating/issues"
+  },
+  "homepage": "https://github.com/shaunuk/piheating"
+}
