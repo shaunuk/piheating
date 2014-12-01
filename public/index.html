@@ -25,26 +25,103 @@ body {background-color: #5a5a5a;}
       </div>
       <div class="col-md-4">
         <div class="jumbotron text-center">
-          <button type="button" class="btn btn-danger btn-lg btn-block"><span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span> Warmer</button>
-          <button type="button" class="btn btn-info btn-lg btn-block"><span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span> Cooler</button>
+          <button type="button" class="btn btn-danger btn-lg btn-block" id=up><span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span> Warmer</button>
+          <button type="button" class="btn btn-info btn-lg btn-block" id=down><span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span> Cooler</button>
         </div>
       </div>
     </div>
 
-
+    <div class=row>
+      <div class="col-md-12">
+        <div class=jumbotron>
+        <canvas id="myChart" width="500" height="300"></canvas>
+        </div>
+      </div>
+    </div>
   </div>
   <script src="jquery.min.js"></script>
   <script src="bootstrap/js/bootstrap.min.js"></script>
 <!--  <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>-->
 <script src="/socket.io/socket.io.js"></script>
+  <script src="Chart.js"></script>
   <script>
+  window.nowtemp = 0;
+  //window.packet;
     var socket = io();
     socket.on('temp', function (data) {
-      $('#nowtemp').html(data.temp+'&deg;C');
+      window.nowtemp = data.temp;
+      setDisplay(data.temp);
       $('#nowdate').html(data.date);
       console.log(data);
-      socket.emit('my other event', { my: 'data' });
+      //socket.emit('my other event', { my: 'data' });
     });
+
+var data = {
+    labels: ["23", "00", "01", "02", "03", "04", "05", "06", 07, 08, 09,10,11,12,13,14,15,16,17,18,19,20,22,22,23],
+    datasets: [
+        {
+            label: "My Second dataset",
+            fillColor: "rgba(151,187,205,0.2)",
+            strokeColor: "rgba(151,187,205,1)",
+            pointColor: "rgba(151,187,205,1)",
+            pointStrokeColor: "#fff",
+            pointHighlightFill: "#fff",
+            pointHighlightStroke: "rgba(151,187,205,1)",
+            data: ['13.7','13.3','12.7','12.3',12,'11.7','11.7','16.2','19.1','16.2','14.3',16,19,'16.6','15','14.3','13.7','13.3','13.2','12.8','12.5','12.9','18.9','17.5']
+        }
+    ]
+};
+
+function setDisplay(override){
+  if (window.settemp) {
+    $('#nowtemp').html(window.settemp+'&deg;C');
+  }
+  if (window.settemp > window.nowtemp) {
+    $('#nowtemp').css('color','red');
+  } else {
+    $('#nowtemp').css('color','blue');
+  }
+  if (override) {
+    $('#nowtemp').html(override+'&deg;C');
+    $('#nowtemp').css('color','black');
+  }
+}
+
+function roundHalf(num) {
+    num = Math.round(num*2)/2;
+    return num;
+}
+
+function sendTemp(){
+  setDisplay();
+  //window.packet.settemp = window.settemp; //set the required temperature
+  console.log('temp is %s set to %s',window.nowtemp,window.settemp);
+  socket.emit('settemp', { settemp: window.nowtemp });
+}
+
+$(function(){
+
+
+$('#up').on('click',function(){
+  if(!window.settemp) {
+    window.settemp = window.nowtemp;
+  }
+  window.settemp = roundHalf(window.settemp + 0.5);
+  sendTemp();
+});
+$('#down').on('click',function(){
+  if(!window.settemp) {
+    window.settemp = window.nowtemp;
+  }
+  window.settemp = roundHalf(window.settemp - 0.5);
+  sendTemp();
+});
+
+var ctx = $("#myChart").get(0).getContext("2d");
+// This will get the first returned node in the jQuery collection.
+var myLineChart = new Chart(ctx).Line(data);
+
+}); 
   </script>
   </body>
 </html>

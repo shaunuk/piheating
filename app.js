@@ -1,25 +1,42 @@
+var express = require('express');
+var app = express();
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
+
 var gpio = require("pi-gpio");
 var fs = require('fs');
 var mysql = require('mysql');
-var static = require('node-static');
+
+server.listen(80);
+
+app.use(express.static(__dirname + '/public'));
+
+io.on('connection', function (socket) {
+
+  if (global.lastTemp) {
+    sendTemp(global.lastTemp);
+  }
+    //socket.emit('temp', { temp: temp });
+  
+  //socket.emit('test', { hello: 'world' });
+  socket.on('settemp', function (data) {
+    console.log(data);
+  });
+});
+
+
+
+//var express = require('express');
+//var app = express();
+/*
+var app = require('express').createServer();
+var io = require('socket.io')(app);
+*/
 
 global.pin = -1;
 global.temp = 0;
-//
-// Create a node-static server instance to serve the './public' folder
-//
-var file = new static.Server('./public');
 
-require('http').createServer(function (request, response) {
-    request.addListener('end', function () {
-        //
-        // Serve files!
-        //
-        file.serve(request, response);
-    }).resume();
-}).listen(80);
-
-
+//app.use(express.static(__dirname + '/public')).listen(80); //make a file server - ugh, why so easy
 
 var connection = mysql.createConnection({
   host     : '127.0.0.1',
@@ -33,6 +50,7 @@ function getTemp() {
     if (err) throw err;
     temp = parseFloat((data.slice(data.search('t=')+2)/1000).toFixed(1));
     console.log('Current Temperature %s last %s',temp,global.lastTemp);
+    sendTemp(temp); 
     if (global.lastTemp != temp) { //only do logic and save if the tewmp has changed
       if (temp > 19) {
         relay(11,1);
@@ -52,7 +70,9 @@ function getTemp() {
   });
 }
 
-
+function sendTemp(temp){
+ io.sockets.emit('temp', { temp: temp, date: Date() });
+}
 
 function relay(pin,position) {
   if (global.pin != position) {
@@ -71,6 +91,3 @@ setInterval(function(){
 }, 5000);
 
 console.log('Running');
-
-
-
